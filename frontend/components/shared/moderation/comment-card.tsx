@@ -65,6 +65,11 @@ export function CommentCard({ comment }: CommentCardProps) {
               <DialogTitle>Détail de l’analyse</DialogTitle>
             </DialogHeader>
             <div className="space-y-6">
+              <div className="rounded-lg border border-background-200 bg-background-100 p-4">
+                <p className="text-small text-muted-foreground mb-1">Texte analysé</p>
+                <p className="text-foreground">{comment.original_text}</p>
+              </div>
+
               {hasTranslation && comment.translated_text && (
                 <TranslationNotice
                   language={comment.detected_language}

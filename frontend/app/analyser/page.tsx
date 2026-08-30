@@ -60,6 +60,11 @@ export default function AnalyzePage() {
 
       {data && (
         <div className="space-y-6">
+          <div className="rounded-lg border border-background-200 bg-background-100 p-4">
+            <p className="text-small text-muted-foreground mb-1">Texte analysé</p>
+            <p className="text-foreground">{data.original_text}</p>
+          </div>
+
           {data.translated_text && (
             <TranslationNotice
               language={data.detected_language}

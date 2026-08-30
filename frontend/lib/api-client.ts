@@ -79,10 +79,13 @@ export const generateComments = (topic: string, count: number) =>
     body: JSON.stringify({ topic, count }),
   });
 
-export const analyzeComments = (comments: GeneratedComment[]) =>
+export const analyzeComments = (
+  comments: GeneratedComment[],
+  options: { model?: "logistic_regression" | "random_forest" | "both"; translate?: boolean } = {},
+) =>
   request<BatchAnalysisResponse>("/analyze-comments", {
     method: "POST",
-    body: JSON.stringify({ comments }),
+    body: JSON.stringify({ comments, model: options.model ?? "both", translate: options.translate ?? true }),
   });
 
 export const getMetrics = () => request<MetricsResponse>("/metrics");

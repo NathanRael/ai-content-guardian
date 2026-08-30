@@ -13,7 +13,15 @@ export const useAnalyzeComments = () => {
 
   return useMutation({
     mutationKey: QUERY_KEYS.ANALYZE_COMMENTS,
-    mutationFn: (comments: GeneratedComment[]) => analyzeComments(comments),
+    mutationFn: ({
+      comments,
+      model,
+      translate,
+    }: {
+      comments: GeneratedComment[];
+      model?: "logistic_regression" | "random_forest" | "both";
+      translate?: boolean;
+    }) => analyzeComments(comments, { model, translate }),
     onSuccess: (data) => {
       setLatestBatch(data);
       clearGeneratedComments();

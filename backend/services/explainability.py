@@ -23,11 +23,12 @@ def _get_lime_explainer() -> LimeTextExplainer:
     return _explainer
 
 
-def explain_with_lime(text: str, pred_idx: int, top_n: int = 10) -> list[dict]:
+def explain_with_lime(text: str, pred_idx: int, model_name: str = "random_forest", top_n: int = 10) -> list[dict]:
     """Return the top signed LIME features for the predicted class."""
-    from services.ml_pipeline import predict_proba_for_lime
+    from services.ml_pipeline import predict_proba_for_lime, predict_proba_for_logistic
 
-    exp = _get_lime_explainer().explain_instance(text, predict_proba_for_lime, num_features=top_n, top_labels=1)
+    predictor = predict_proba_for_logistic if model_name == "logistic_regression" else predict_proba_for_lime
+    exp = _get_lime_explainer().explain_instance(text, predictor, num_features=top_n, top_labels=1)
     label = exp.available_labels()[0]
     features = exp.as_list(label=label)
     return [{"word": word, "weight": round(float(weight), 4)} for word, weight in features]

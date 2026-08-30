@@ -3,7 +3,11 @@ from __future__ import annotations
 
 import asyncio
 
+from typing import Literal
+
 from fastapi import APIRouter, HTTPException
+from langdetect import detect
+from langdetect.lang_detect_exception import LangDetectException
 from pydantic import BaseModel, Field, field_validator
 
 from services.dialect_proxy import compute_dialect_score
@@ -47,6 +51,8 @@ class AnalyzeResponse(BaseModel):
 
 class BatchAnalyzeRequest(BaseModel):
     comments: list[dict] = Field(..., min_length=1)
+    model: Literal["logistic_regression", "random_forest", "both"] = "both"
+    translate: bool = True
 
     @field_validator("comments")
     @classmethod
@@ -72,18 +78,41 @@ class BatchAnalyzeResponse(BaseModel):
     summary: Summary
 
 
-def _analyze_one_sync(original_text: str) -> dict:
-    translation = translate_if_needed(original_text)
-    classification_text = translation.translated_text or original_text
-    detected_language = translation.detected_language
-    translated_text = translation.translated_text
+def _detect_language(text: str) -> str:
+    try:
+        return detect(text.strip())
+    except LangDetectException:
+        return "unknown"
+
+
+def _analyze_one_sync(
+    original_text: str,
+    model: str = "both",
+    translate: bool = True,
+) -> dict:
+    if translate:
+        translation = translate_if_needed(original_text)
+        classification_text = translation.translated_text or original_text
+        detected_language = translation.detected_language
+        translated_text = translation.translated_text
+    else:
+        classification_text = original_text
+        detected_language = _detect_language(original_text)
+        translated_text = None
 
     cleaned = clean_text(classification_text)
     if not cleaned:
         raise HTTPException(status_code=400, detail="Texte vide après nettoyage.")
 
-    lr = predict(cleaned, "logistic_regression")
-    rf = predict(cleaned, "random_forest")
+    if model == "both":
+        lr = predict(cleaned, "logistic_regression")
+        rf = predict(cleaned, "random_forest")
+    elif model == "logistic_regression":
+        lr = predict(cleaned, "logistic_regression")
+        rf = lr
+    else:  # random_forest
+        rf = predict(cleaned, "random_forest")
+        lr = rf
 
     lr_api_label = _LABEL_TO_API[lr["label"]]
     rf_api_label = _LABEL_TO_API[rf["label"]]
@@ -96,8 +125,10 @@ def _analyze_one_sync(original_text: str) -> dict:
         lr_api_label, rf_api_label, max_confidence, dialect_score
     )
 
-    pred_idx = CLASS_INDEX[lr["label"]]
-    top_words = explain_with_lime(cleaned, pred_idx, top_n=10)
+    primary_label = lr["label"] if model != "random_forest" else rf["label"]
+    pred_idx = CLASS_INDEX[primary_label]
+    lime_model = "logistic_regression" if model != "random_forest" else "random_forest"
+    top_words = explain_with_lime(cleaned, pred_idx, model_name=lime_model, top_n=10)
 
     return {
         "original_text": original_text,
@@ -113,28 +144,40 @@ def _analyze_one_sync(original_text: str) -> dict:
     }
 
 
-async def analyze_one(original_text: str) -> dict:
-    return await asyncio.to_thread(_analyze_one_sync, original_text)
+async def analyze_one(
+    original_text: str,
+    model: str = "both",
+    translate: bool = True,
+) -> dict:
+    return await asyncio.to_thread(_analyze_one_sync, original_text, model, translate)
 
 
 @router.post("/analyze-comment", response_model=AnalyzeResponse)
 async def analyze_comment(payload: AnalyzeRequest):
     if not payload.text.strip():
         raise HTTPException(status_code=400, detail="Le texte ne peut pas être vide.")
-    return await analyze_one(payload.text)
+    return await analyze_one(payload.text, model="both", translate=True)
 
 
 @router.post("/analyze-comments", response_model=BatchAnalyzeResponse)
 async def analyze_comments(payload: BatchAnalyzeRequest):
     results = await asyncio.gather(
-        *[analyze_one(str(item["text"])) for item in payload.comments]
+        *[
+            analyze_one(str(item["text"]), model=payload.model, translate=payload.translate)
+            for item in payload.comments
+        ]
     )
     for item, result in zip(payload.comments, results):
         result["id"] = item["id"]
 
-    safe = sum(1 for r in results if r["logistic_regression"]["label"] == "neutral")
-    offensive = sum(1 for r in results if r["logistic_regression"]["label"] == "offensive")
-    hate = sum(1 for r in results if r["logistic_regression"]["label"] == "hate_speech")
+    primary_key = (
+        "logistic_regression"
+        if payload.model != "random_forest"
+        else "random_forest"
+    )
+    safe = sum(1 for r in results if r[primary_key]["label"] == "neutral")
+    offensive = sum(1 for r in results if r[primary_key]["label"] == "offensive")
+    hate = sum(1 for r in results if r[primary_key]["label"] == "hate_speech")
     total = len(results)
 
     if hate > 0:

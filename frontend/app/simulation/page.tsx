@@ -22,10 +22,19 @@ import { useModerationStore } from "@/store/moderation-store";
 import { ApiError } from "@/lib/api-client";
 
 const countOptions = [10, 20, 30, 40, 50];
+const modelOptions: {
+  value: "both" | "logistic_regression" | "random_forest";
+  label: string;
+}[] = [
+  { value: "both", label: "Les deux modèles" },
+  { value: "logistic_regression", label: "Logistic Regression" },
+  { value: "random_forest", label: "Random Forest" },
+];
 
 export default function SimulationPage() {
   const [topic, setTopic] = useState("");
   const [count, setCount] = useState(20);
+  const [model, setModel] = useState<"both" | "logistic_regression" | "random_forest">("both");
 
   const generatedComments = useModerationStore(
     (state) => state.generatedComments,
@@ -54,7 +63,7 @@ export default function SimulationPage() {
   const handleAnalyze = async () => {
     if (!generatedComments || generatedComments.length === 0) return;
     try {
-      await analyze(generatedComments);
+      await analyze({ comments: generatedComments, model, translate: false });
     } catch (error) {
       toast.error(
         error instanceof ApiError
@@ -102,6 +111,31 @@ export default function SimulationPage() {
               {countOptions.map((option) => (
                 <SelectItem key={option} value={String(option)}>
                   {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="model">Modèle à utiliser</Label>
+          <Select
+            value={model}
+            onValueChange={(value) =>
+              setModel(value as "both" | "logistic_regression" | "random_forest")
+            }
+          >
+            <SelectTrigger
+              id="model"
+              className="w-56"
+              data-cy="simulation-model"
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {modelOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
                 </SelectItem>
               ))}
             </SelectContent>

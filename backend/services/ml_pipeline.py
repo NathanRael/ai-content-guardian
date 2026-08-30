@@ -158,3 +158,10 @@ def predict_proba_for_lime(texts: list[str]) -> np.ndarray:
     vectorizer, _, rf = get_models()
     X = vectorizer.transform(texts).toarray()
     return rf.predict_proba(X)
+
+
+def predict_proba_for_logistic(texts: list[str]) -> np.ndarray:
+    """Prediction function used by LIME (works on logistic regression)."""
+    vectorizer, lr, _ = get_models()
+    X = vectorizer.transform(texts)
+    return lr.predict_proba(X)
