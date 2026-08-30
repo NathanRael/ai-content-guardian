@@ -39,6 +39,16 @@ export const useModerationStore = create<ModerationState>()(
     }),
     {
       name: "ai-content-guardian-moderation",
+      version: 1,
+      migrate: (persistedState) => {
+        const state = persistedState as Record<string, unknown>;
+        const batch = state?.latestBatch;
+        if (batch && typeof batch === "object" && !("response" in batch)) {
+          // Old shape : BatchAnalysisResponse direct. Reset to avoid crash.
+          state.latestBatch = null;
+        }
+        return state as unknown as ModerationState;
+      },
     },
   ),
 );
