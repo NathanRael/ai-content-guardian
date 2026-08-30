@@ -41,15 +41,19 @@ export default function DashboardPage() {
         </Button>
       </div>
 
-      <StatsSummary summary={batch.summary} />
+      <StatsSummary summary={batch.response.summary} />
 
       <section className="space-y-4">
         <h2 className="text-subtitle-2 font-semibold">
           Commentaires analysés
         </h2>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 max-h-[80vh] overflow-y-auto pr-2">
-          {batch.results.map((comment) => (
-            <CommentCard key={comment.id} comment={comment} />
+          {batch.response.results.map((comment) => (
+            <CommentCard
+              key={comment.id}
+              comment={comment}
+              model={batch.model}
+            />
           ))}
         </div>
       </section>

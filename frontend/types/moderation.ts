@@ -1,5 +1,10 @@
 export type ModerationLabel = "hate_speech" | "offensive" | "neutral";
 
+export type AnalysisModel =
+  | "both"
+  | "logistic_regression"
+  | "random_forest";
+
 export interface ModelPrediction {
   label: ModerationLabel;
   confidence: number;

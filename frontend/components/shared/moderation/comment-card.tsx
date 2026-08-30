@@ -16,10 +16,10 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import type { BatchAnalysisResult } from "@/types/moderation";
+import type { AnalysisModel, BatchAnalysisResult } from "@/types/moderation";
 
 import { ConfidenceBar } from "./confidence-bar";
-import { LabelBadge } from "./label-helpers";
+import { LabelBadge, labelText } from "./label-helpers";
 import { ModelComparisonPanel } from "./model-comparison-panel";
 import { RecommendationBanner } from "./recommendation-banner";
 import { TranslationNotice } from "./translation-notice";
@@ -28,24 +28,30 @@ import { CollapsibleSection } from "./collapsible-section";
 
 interface CommentCardProps {
   comment: BatchAnalysisResult;
+  model?: AnalysisModel;
 }
 
-export function CommentCard({ comment }: CommentCardProps) {
+export function CommentCard({ comment, model = "both" }: CommentCardProps) {
   const [open, setOpen] = useState(false);
   const hasTranslation = comment.translated_text !== null;
+
+  const primaryPrediction =
+    model === "random_forest"
+      ? comment.random_forest
+      : comment.logistic_regression;
 
   return (
     <Card className="flex flex-col">
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-4">
           <p className="line-clamp-2 text-foreground">{comment.original_text}</p>
-          <LabelBadge label={comment.logistic_regression.label} />
+          <LabelBadge label={primaryPrediction.label} />
         </div>
       </CardHeader>
       <CardContent className="pb-2">
         <ConfidenceBar
-          value={comment.logistic_regression.confidence}
-          label={comment.logistic_regression.label}
+          value={primaryPrediction.confidence}
+          label={primaryPrediction.label}
         />
       </CardContent>
       <CardFooter className="pt-0">
@@ -66,7 +72,9 @@ export function CommentCard({ comment }: CommentCardProps) {
             </DialogHeader>
             <div className="space-y-6">
               <div className="rounded-lg border border-background-200 bg-background-100 p-4">
-                <p className="text-small text-muted-foreground mb-1">Texte analysé</p>
+                <p className="text-small text-muted-foreground mb-1">
+                  Texte analysé
+                </p>
                 <p className="text-foreground">{comment.original_text}</p>
               </div>
 
@@ -82,7 +90,18 @@ export function CommentCard({ comment }: CommentCardProps) {
                 reason={comment.recommendation_reason}
               />
 
-              <ModelComparisonPanel result={comment} />
+              {model === "both" ? (
+                <ModelComparisonPanel result={comment} />
+              ) : (
+                <SingleModelResult
+                  name={
+                    model === "random_forest"
+                      ? "Random Forest"
+                      : "Logistic Regression"
+                  }
+                  prediction={primaryPrediction}
+                />
+              )}
 
               <CollapsibleSection title="Voir le détail">
                 <ExplanationPanel
@@ -95,5 +114,26 @@ export function CommentCard({ comment }: CommentCardProps) {
         </Dialog>
       </CardFooter>
     </Card>
+  );
+}
+
+function SingleModelResult({
+  name,
+  prediction,
+}: {
+  name: string;
+  prediction: BatchAnalysisResult["logistic_regression"];
+}) {
+  return (
+    <div className="space-y-3 rounded-lg border border-background-200 p-4">
+      <p className="text-small font-medium text-muted-foreground">{name}</p>
+      <div className="flex items-center gap-2">
+        <LabelBadge label={prediction.label} />
+        <span className="text-small text-muted-foreground">
+          {labelText(prediction.label)} — {Math.round(prediction.confidence * 100)} %
+        </span>
+      </div>
+      <ConfidenceBar value={prediction.confidence} label={prediction.label} />
+    </div>
   );
 }

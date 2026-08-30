@@ -198,8 +198,12 @@ export default function SimulationPage() {
             </Button>
           </div>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {latestBatch.results.map((comment) => (
-              <CommentCard key={comment.id} comment={comment} />
+            {latestBatch.response.results.map((comment) => (
+              <CommentCard
+                key={comment.id}
+                comment={comment}
+                model={latestBatch.model}
+              />
             ))}
           </div>
         </div>
