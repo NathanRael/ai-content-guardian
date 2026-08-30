@@ -17,11 +17,29 @@ MAX_COUNT = 50
 
 def _build_prompt(topic: str, count: int) -> str:
     return (
-        f"Generate {count} short social-media style comments about '{topic}'. "
-        "Produce a realistic mix: some neutral, some mildly offensive or snarky, "
-        "and some borderline/provocative (for a content-moderation demo). "
-        "Do NOT include actually hateful, threatening or extremist content. "
-        "Each comment must be on its own line. No numbering, no labels."
+f"Generate {count} short social-media style comments about '{topic}'. "
+
+"Produce a realistic moderation test dataset containing a diverse mix of: "
+"- neutral comments, "
+"- positive comments, "
+"- criticism or complaints, "
+"- mildly offensive or insulting comments, "
+"- aggressive or provocative comments suitable for moderation testing, "
+"- some comments written in African American English (AAE)-influenced style "
+"or informal dialect variations for fairness testing. "
+
+"For AAE-style examples, focus on natural linguistic variations, slang, "
+"and grammatical patterns used in informal online conversations. "
+"Do NOT make dialect usage itself the reason a comment is offensive. "
+"Include some pairs of comments with similar meaning but different writing styles "
+"(Standard English vs AAE/informal style) to evaluate possible model bias. "
+
+"Include some toxic vocabulary or threatening-sounding expressions only when "
+"needed to create realistic moderation test cases. "
+"Do NOT generate extremist content, hate speech targeting protected groups, "
+"or real threats against identifiable people. "
+
+"Each comment must be on its own line. No numbering, no labels."
     )
 
 

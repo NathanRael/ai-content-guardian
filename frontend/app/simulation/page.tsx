@@ -26,10 +26,10 @@ const modelOptions: {
   value: "both" | "logistic_regression" | "random_forest";
   label: string;
 }[] = [
-  { value: "both", label: "Les deux modèles" },
-  { value: "logistic_regression", label: "Logistic Regression" },
-  { value: "random_forest", label: "Random Forest" },
-];
+    { value: "both", label: "Les deux modèles" },
+    { value: "logistic_regression", label: "Logistic Regression" },
+    { value: "random_forest", label: "Random Forest" },
+  ];
 
 export default function SimulationPage() {
   const [topic, setTopic] = useState("");
@@ -74,7 +74,7 @@ export default function SimulationPage() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl space-y-8">
+    <div className="mx-auto max-w-7xl space-y-8">
       <div>
         <h1 className="text-subtitle font-semibold">Simulation</h1>
         <p className="text-muted-foreground">
@@ -154,9 +154,8 @@ export default function SimulationPage() {
       {generatedComments && generatedComments.length > 0 && !latestBatch && (
         <div className="space-y-4">
           <CollapsibleSection
-            title={`${generatedComments.length} commentaire${
-              generatedComments.length > 1 ? "s" : ""
-            } généré${generatedComments.length > 1 ? "s" : ""}`}
+            title={`${generatedComments.length} commentaire${generatedComments.length > 1 ? "s" : ""
+              } généré${generatedComments.length > 1 ? "s" : ""}`}
           >
             <ul className="space-y-2">
               {generatedComments.map((comment) => (

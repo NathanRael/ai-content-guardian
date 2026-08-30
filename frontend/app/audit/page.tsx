@@ -77,13 +77,13 @@ export default function AuditPage() {
             <Card key={index}>
               <CardContent className="space-y-4 pt-6">
                 <ExampleText label="Version standard" text={pair.standard} />
-                <PredictionRow prediction={pair.prediction_standard} />
+                <PredictionRow predictions={pair.prediction_standard} />
                 <hr className="border-background-200" />
                 <ExampleText
                   label="Variante de dialecte"
                   text={pair.dialect_variant}
                 />
-                <PredictionRow prediction={pair.prediction_variant} />
+                <PredictionRow predictions={pair.prediction_variant} />
               </CardContent>
             </Card>
           ))}
@@ -145,16 +145,37 @@ function ExampleText({ label, text }: { label: string; text: string }) {
 }
 
 function PredictionRow({
+  predictions,
+}: {
+  predictions: import("@/types/moderation").ExamplePairPredictions;
+}) {
+  return (
+    <div className="space-y-2">
+      <ModelPredictionRow
+        name="Logistic Regression"
+        prediction={predictions.logistic_regression}
+      />
+      <ModelPredictionRow
+        name="Random Forest"
+        prediction={predictions.random_forest}
+      />
+    </div>
+  );
+}
+
+function ModelPredictionRow({
+  name,
   prediction,
 }: {
+  name: string;
   prediction: { label: "hate_speech" | "offensive" | "neutral"; confidence: number };
 }) {
   return (
     <div className="flex items-center gap-3">
+      <span className="w-32 text-small text-muted-foreground">{name}</span>
       <LabelBadge label={prediction.label} />
       <span className="text-small text-muted-foreground">
-        {labelText(prediction.label)} —{" "}
-        {Math.round(prediction.confidence * 100)} %
+        {labelText(prediction.label)} — {Math.round(prediction.confidence * 100)} %
       </span>
     </div>
   );

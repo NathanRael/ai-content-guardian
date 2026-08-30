@@ -80,11 +80,16 @@ export interface EdgeCase {
   note: string;
 }
 
+export interface ExamplePairPredictions {
+  logistic_regression: ModelPrediction;
+  random_forest: ModelPrediction;
+}
+
 export interface ExamplePair {
   standard: string;
   dialect_variant: string;
-  prediction_standard: ModelPrediction;
-  prediction_variant: ModelPrediction;
+  prediction_standard: ExamplePairPredictions;
+  prediction_variant: ExamplePairPredictions;
 }
 
 export interface BiasAuditResponse {
