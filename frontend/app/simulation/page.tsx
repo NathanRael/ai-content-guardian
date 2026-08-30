@@ -117,31 +117,6 @@ export default function SimulationPage() {
           </Select>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="model">Modèle à utiliser</Label>
-          <Select
-            value={model}
-            onValueChange={(value) =>
-              setModel(value as "both" | "logistic_regression" | "random_forest")
-            }
-          >
-            <SelectTrigger
-              id="model"
-              className="w-56"
-              data-cy="simulation-model"
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {modelOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
         <Button
           type="submit"
           disabled={isGenerating || !topic.trim()}
@@ -169,13 +144,40 @@ export default function SimulationPage() {
             </ul>
           </CollapsibleSection>
 
-          <Button
-            onClick={handleAnalyze}
-            disabled={isAnalyzing}
-            data-cy="simulation-analyze"
-          >
-            {isAnalyzing ? "Analyse en cours..." : "Analyser les commentaires"}
-          </Button>
+          <div className="flex flex-wrap items-end gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="model">Modèle à utiliser</Label>
+              <Select
+                value={model}
+                onValueChange={(value) =>
+                  setModel(value as "both" | "logistic_regression" | "random_forest")
+                }
+              >
+                <SelectTrigger
+                  id="model"
+                  className="w-56"
+                  data-cy="simulation-model"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {modelOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button
+              onClick={handleAnalyze}
+              disabled={isAnalyzing}
+              data-cy="simulation-analyze"
+            >
+              {isAnalyzing ? "Analyse en cours..." : "Analyser les commentaires"}
+            </Button>
+          </div>
         </div>
       )}
 
