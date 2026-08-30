@@ -126,7 +126,7 @@ export default function SimulationPage() {
         </Button>
       </form>
 
-      {generatedComments && generatedComments.length > 0 && !latestBatch && (
+      {generatedComments && generatedComments.length > 0 && (
         <div className="space-y-4">
           <CollapsibleSection
             title={`${generatedComments.length} commentaire${generatedComments.length > 1 ? "s" : ""
@@ -175,7 +175,11 @@ export default function SimulationPage() {
               disabled={isAnalyzing}
               data-cy="simulation-analyze"
             >
-              {isAnalyzing ? "Analyse en cours..." : "Analyser les commentaires"}
+              {isAnalyzing
+                ? "Analyse en cours..."
+                : latestBatch
+                  ? "Réanalyser les commentaires"
+                  : "Analyser les commentaires"}
             </Button>
           </div>
         </div>

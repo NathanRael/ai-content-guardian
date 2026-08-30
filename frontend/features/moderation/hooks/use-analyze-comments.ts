@@ -8,9 +8,6 @@ import type { AnalysisModel, GeneratedComment } from "@/types/moderation";
 
 export const useAnalyzeComments = () => {
   const setLatestBatch = useModerationStore((state) => state.setLatestBatch);
-  const clearGeneratedComments = useModerationStore(
-    (state) => state.clearGeneratedComments,
-  );
 
   return useMutation({
     mutationKey: QUERY_KEYS.ANALYZE_COMMENTS,
@@ -25,7 +22,6 @@ export const useAnalyzeComments = () => {
     }) => analyzeComments(comments, { model, translate }),
     onSuccess: (data, variables) => {
       setLatestBatch(data, variables.model ?? "both");
-      clearGeneratedComments();
     },
   });
 };
