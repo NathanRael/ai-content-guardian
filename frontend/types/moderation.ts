@@ -76,7 +76,10 @@ export interface MetricsResponse {
 export interface EdgeCase {
   case_type: string;
   example_text: string;
-  prediction: ModelPrediction;
+  prediction: {
+    logistic_regression: ModelPrediction;
+    random_forest: ModelPrediction;
+  };
   note: string;
 }
 

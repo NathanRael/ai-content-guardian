@@ -117,11 +117,15 @@ export default function AuditPage() {
                   <span className="font-medium">{edgeCase.case_type}</span>
                 </div>
                 <p className="text-foreground">{edgeCase.example_text}</p>
-                <div className="flex items-center gap-3">
-                  <LabelBadge label={edgeCase.prediction.label} />
-                  <span className="text-small text-muted-foreground">
-                    Confiance : {Math.round(edgeCase.prediction.confidence * 100)} %
-                  </span>
+                <div className="space-y-2">
+                  <ModelPredictionRow
+                    name="Logistic Regression"
+                    prediction={edgeCase.prediction.logistic_regression}
+                  />
+                  <ModelPredictionRow
+                    name="Random Forest"
+                    prediction={edgeCase.prediction.random_forest}
+                  />
                 </div>
                 <p className="text-small text-muted-foreground">
                   {edgeCase.note}
