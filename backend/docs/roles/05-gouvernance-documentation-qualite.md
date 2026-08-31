@@ -37,3 +37,16 @@ Concrètement, j’ai travaillé sur la fiche modèle, les limites connues, le r
 J’ai donc insisté sur un point important : le modèle peut aider à identifier des contenus, mais il ne doit jamais sanctionner seul ni remplacer le jugement humain.
 
 Au final, la documentation permet de garder une trace claire du fonctionnement du système, de ses risques et de ses limites. Mon rôle était donc de m’assurer que le projet reste encadré, avec une utilisation responsable et une supervision humaine présente.
+
+### My own version
+Pour ma part, je me suis occupé de la **gestion des cas incertains et de l’apprentissage** du système.
+
+J’ai identifié plusieurs situations où le système peut rencontrer des difficultés : des horaires qui se chevauchent, des journées déjà remplies ou encore des cas où plusieurs choix ont la même priorité.
+
+Dans ces situations, le système **ne choisit pas au hasard**. Lorsqu’il y a deux choix possibles de même priorité, il présente **les deux options à l’utilisateur**, afin que celui-ci puisse prendre la décision.
+
+J’ai également travaillé sur la **mémoire du système**. L’état de la planification peut être sauvegardé dans `etat_sauvegarde.json`, puis réutilisé plus tard. Cela permet de reprendre une planification et de conserver les décisions précédentes.
+
+Cette mémoire constitue aussi une base pour l’apprentissage futur : si certains conflits reviennent souvent, on pourra analyser ces cas et éventuellement **adapter les règles de priorité**.
+
+Enfin, j’ai vérifié ces fonctionnalités avec différents cas de test : conflits, choix multiples, erreurs et reprise après sauvegarde.
